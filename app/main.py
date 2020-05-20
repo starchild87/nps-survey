@@ -48,6 +48,8 @@ def send_survey():
             # here is where we write to the airtable
             airtable.insert(message_data_dict[sender_phone_number])
         session['sms_count'] += 1
+    
+    print(message_data_dict)
 
     resp = MessagingResponse()
     msg = resp.message()
