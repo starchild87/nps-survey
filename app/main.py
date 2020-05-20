@@ -24,7 +24,7 @@ def send_survey():
     # reset session
     if 'reset' in incoming_msg:
         del session['sms_count']
-        del session[sender_phone_number]
+        session.pop(sender_phone_number, None)
         return("resetting the session")
         
     if not 'sms_count' in session:
@@ -33,9 +33,6 @@ def send_survey():
         
     sms_count = session['sms_count']
     sms_message = get_message(sms_count)
-
-    print(message_data_dict)
-    print(sms_count)
     
     if sms_count >= 0 and sms_count <= 3:
         if sms_count == 0:
