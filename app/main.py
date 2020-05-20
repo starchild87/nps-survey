@@ -22,7 +22,6 @@ def send_survey():
     incoming_msg = request.values.get('Body', '').lower()
     sender_phone_number = request.values.get('From', '')
     twilio_phone_number = request.values.get('To', '')
-    global message_data_dict
 
     # reset session
     if 'reset' in incoming_msg:
