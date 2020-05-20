@@ -34,7 +34,7 @@ def send_survey():
     sms_count = session['sms_count']
     sms_message = get_message(sms_count)
     
-    if sms_count >= 0 and sms_count <= 3:
+    if sms_count >= 0 and sms_count <= 4:
         if sms_count == 0:
             session[sender_phone_number]['Twilio_Phone_Number'] = twilio_phone_number
         elif sms_count == 1:
@@ -43,6 +43,9 @@ def send_survey():
             session[sender_phone_number]['Reason'] = incoming_msg
         elif sms_count == 3:
             session[sender_phone_number]['Comments'] = incoming_msg
+        elif sms_count == 4:
+            session[sender_phone_number]['Team'] = incoming_msg
+            
             # here is where we write to the airtable
             airtable.insert(session[sender_phone_number])
         session['sms_count'] += 1
@@ -106,6 +109,8 @@ def get_message(sms_count):
         sms_message = "Why did you give us that score?"
     elif sms_count == 2:
         sms_message = "Is there anything we could do better next time?"
+    elif sms_count == 3:
+        sms_message = "Which Team were you a part of?"
     else:
         sms_message = "Thanks for your responses!"
     return sms_message
