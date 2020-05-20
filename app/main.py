@@ -36,6 +36,7 @@ def send_survey():
     sms_message = get_message(sms_count)
 
     print(message_data_dict)
+    print(sms_count)
     
     if sms_count >= 0 and sms_count <= 3:
         if sms_count == 0:
