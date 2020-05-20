@@ -34,6 +34,8 @@ def send_survey():
         
     sms_count = session['sms_count']
     sms_message = get_message(sms_count)
+
+    print(message_data_dict)
     
     if sms_count >= 0 and sms_count <= 3:
         if sms_count == 0:
@@ -48,8 +50,6 @@ def send_survey():
             # here is where we write to the airtable
             airtable.insert(message_data_dict[sender_phone_number])
         session['sms_count'] += 1
-    
-    print(message_data_dict)
 
     resp = MessagingResponse()
     msg = resp.message()
