@@ -10,8 +10,6 @@ app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 # This is required to read/write from AirTable base (GET/POST)
 AIRTABLE_BASE_ID = os.environ.get("AIRTABLE_BASE_ID")
 
-message_data_dict = {}
-
 @app.route('/send-survey', methods=['POST'])
 def send_survey():
     """
@@ -19,17 +17,19 @@ def send_survey():
     messages and writes to the AirTable
     """
     airtable = Airtable(AIRTABLE_BASE_ID, 'Input')
-    incoming_msg = request.values.get('Body', '').lower()
-    sender_phone_number = request.values.get('From', '')
-    twilio_phone_number = request.values.get('To', '')
+    incoming_msg = request.values.get('Body', 'message error').lower()
+    sender_phone_number = request.values.get('From', 'unknown_sender')
+    twilio_phone_number = request.values.get('To', 'unknown_number')
 
     # reset session
     if 'reset' in incoming_msg:
         del session['sms_count']
+        del session[sender_phone_number]
         return("resetting the session")
         
     if not 'sms_count' in session:
         session['sms_count'] = 0
+        session[sender_phone_number] = {}
         
     sms_count = session['sms_count']
     sms_message = get_message(sms_count)
@@ -39,16 +39,15 @@ def send_survey():
     
     if sms_count >= 0 and sms_count <= 3:
         if sms_count == 0:
-            message_data_dict[sender_phone_number] = {}
-            message_data_dict[sender_phone_number]['Twilio_Phone_Number'] = twilio_phone_number
+            session[sender_phone_number]['Twilio_Phone_Number'] = twilio_phone_number
         elif sms_count == 1:
-            message_data_dict[sender_phone_number]['Score'] = int(incoming_msg)
+            session[sender_phone_number]['Score'] = int(incoming_msg)
         elif sms_count == 2:
-            message_data_dict[sender_phone_number]['Reason'] = incoming_msg
+            session[sender_phone_number]['Reason'] = incoming_msg
         elif sms_count == 3:
-            message_data_dict[sender_phone_number]['Comments'] = incoming_msg
+            session[sender_phone_number]['Comments'] = incoming_msg
             # here is where we write to the airtable
-            airtable.insert(message_data_dict[sender_phone_number])
+            airtable.insert(session[sender_phone_number])
         session['sms_count'] += 1
 
     resp = MessagingResponse()
