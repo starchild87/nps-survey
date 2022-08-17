@@ -1,14 +1,18 @@
 import os
+
 import requests
 from airtable import Airtable
+from dotenv import load_dotenv
 from flask import Flask, request, session
 from twilio.twiml.messaging_response import MessagingResponse
 
+load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 
 # This is required to read/write from AirTable base (GET/POST)
 AIRTABLE_BASE_ID = os.environ.get("AIRTABLE_BASE_ID")
+api_key = os.environ.get('AIRTABLE_API_KEY')
 
 @app.route('/send-survey', methods=['POST'])
 def send_survey():
@@ -16,7 +20,7 @@ def send_survey():
     a function that sends the SMS autoresponder
     messages and writes to the AirTable
     """
-    airtable = Airtable(AIRTABLE_BASE_ID, 'Input')
+    airtable = Airtable(api_key, AIRTABLE_BASE_ID, 'Input')
     incoming_msg = request.values.get('Body', 'message error').lower()
     sender_phone_number = request.values.get('From', 'unknown_sender')
     twilio_phone_number = request.values.get('To', 'unknown_number')
@@ -63,7 +67,7 @@ def get_scores():
     """
     phone_number = str(request.args.get('number'))
 
-    airtable = Airtable(AIRTABLE_BASE_ID, 'Input')
+    airtable = Airtable(api_key, AIRTABLE_BASE_ID, 'Input')
     airtable_data_dict = {}
     score_list = []
 
